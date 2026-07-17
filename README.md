@@ -53,3 +53,9 @@ default — override with `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local` if
 | `backend/.env` | `GEMINI_MODEL` | Defaults to `gemini-2.5-flash` |
 | `backend/.env` | `CORS_ORIGINS` | Defaults to `http://localhost:3000` |
 | `frontend/.env.local` | `NEXT_PUBLIC_API_BASE_URL` | Defaults to `http://localhost:8000` |
+
+## Deployment
+
+- **Backend → [Render](https://render.com)**: the repo root has a `render.yaml` blueprint (Render → New → Blueprint, point it at this repo). It builds `backend/` with `pip install -r requirements.txt` and runs `uvicorn main:app --host 0.0.0.0 --port $PORT`. You'll be prompted for `GEMINI_API_KEY` and `CORS_ORIGINS` (set the latter to your Vercel frontend URL); `JWT_SECRET` is auto-generated.
+- **Frontend → [Vercel](https://vercel.com)**: import the repo, set the project's Root Directory to `frontend`, and set `NEXT_PUBLIC_API_BASE_URL` to your deployed Render backend URL.
+- SQLite on Render's free tier has no persistent disk — the schema and seed data (14 destinations, 3 budget tiers) recreate automatically on every restart/redeploy since seeding is idempotent, but any signups or saved trips created in the live deployment won't survive a redeploy.
