@@ -1,0 +1,17 @@
+venv/
+node_modules/
+.env
+.env.local
+.next/
+__pycache__/
+*.db
+*.pyc
+.vscode/
+
+# Personal / non-project files (not part of the app codebase)
+/MAC_SETUP.md
+/Reports/
+/Sem-7 Internship ppt format (1).pdf
+/Summer Internship_Format_Report.pdf
+/TripMind_Internship_PPT.pptx
+/project_prompt(1).md

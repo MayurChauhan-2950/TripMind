@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #14213D;
+  --color-navy-dark: #0B152A;
+  --color-gold: #B8863B;
+  --color-gold-light: #D9B876;
+  --color-paper: #FBF9F4;
+  --color-card: #FFFFFF;
+  --color-stone: #E4DFD3;
+  --color-slate: #5C6478;
+  --color-pine: #2F5D50;
+  --color-rust: #B4552F;
+  --color-harbor: #3C6E91;
+
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+
+  --radius-card: 8px;
+  --radius-tag: 4px;
+  --radius-pill: 999px;
+
+  --text-display-xl: 56px;
+  --text-display-xl--line-height: 1.05;
+  --text-display-lg: 40px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-md: 28px;
+  --text-display-md--line-height: 1.2;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.6;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.5;
+  --text-label: 13px;
+  --text-label--line-height: 1.4;
+  --text-mono-data: 15px;
+  --text-mono-data--line-height: 1.4;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-navy);
+  font-family: var(--font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
