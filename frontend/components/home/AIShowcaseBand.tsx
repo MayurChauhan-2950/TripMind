@@ -17,7 +17,7 @@ export default function AIShowcaseBand() {
               Your route, mapped day by day
             </h2>
             <p className="mt-3 font-body text-body-lg text-paper/80">
-              Tell Gemini where you're headed and what you love — it drafts a structured
+              Tell Gemini where you&apos;re headed and what you love — it drafts a structured
               itinerary you can save and revisit anytime.
             </p>
           </div>
