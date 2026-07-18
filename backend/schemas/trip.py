@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from schemas.budget import BudgetTier
 from schemas.itinerary import ItineraryDay
@@ -33,7 +33,7 @@ class TripOut(TripListItem):
 
 
 class CollaboratorAdd(BaseModel):
-    email: str
+    email: EmailStr
 
 
 class CollaboratorOut(BaseModel):
