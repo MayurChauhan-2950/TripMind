@@ -1,9 +1,13 @@
+import hashlib
 import json
 import re
 
 from google import genai
 
 from config import settings
+from services.cache import get_or_set
+
+_CACHE_TTL_SECONDS = 3600
 
 
 class GeminiUnavailableError(Exception):
@@ -61,10 +65,7 @@ def _extract_json_fragment(text: str) -> str:
     return text
 
 
-def generate_json(prompt: str, *, temperature: float = 0.7) -> dict | list:
-    if not settings.gemini_api_key:
-        raise GeminiUnavailableError("GEMINI_API_KEY is not configured")
-
+def _call_gemini(prompt: str, temperature: float) -> dict | list:
     client = genai.Client(api_key=settings.gemini_api_key)
 
     try:
@@ -98,3 +99,14 @@ def generate_json(prompt: str, *, temperature: float = 0.7) -> dict | list:
             f"Try simplifying the request (fewer days or different options). "
             f"Details: {exc}"
         ) from exc
+
+
+def generate_json(prompt: str, *, temperature: float = 0.7) -> dict | list:
+    if not settings.gemini_api_key:
+        raise GeminiUnavailableError("GEMINI_API_KEY is not configured")
+
+    cache_key = hashlib.sha256(
+        f"{settings.gemini_model}:{temperature}:{prompt}".encode("utf-8")
+    ).hexdigest()
+
+    return get_or_set(cache_key, _CACHE_TTL_SECONDS, lambda: _call_gemini(prompt, temperature))
