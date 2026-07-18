@@ -9,7 +9,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from config import settings
 from database import SessionLocal
 from rate_limit import limiter
-from routes import ai_generic, ai_itinerary, auth, budget, compare, destinations, trips
+from routes import admin, ai_generic, ai_itinerary, auth, budget, compare, destinations, trips
 from seed import run_seed
 
 
@@ -45,6 +45,7 @@ app.include_router(compare.router, prefix="/api")
 app.include_router(ai_generic.router, prefix="/api")
 app.include_router(trips.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 
 
 @app.get("/api/health")

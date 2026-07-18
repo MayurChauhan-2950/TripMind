@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
+from config import settings
 from database import get_db
 from models import User
 from services.auth import decode_access_token
@@ -38,3 +39,9 @@ def user_hobbies(user: User | None) -> list[str] | None:
     if not user or not user.hobbies:
         return None
     return [h.strip() for h in user.hobbies.split(",") if h.strip()]
+
+
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not settings.admin_email or current_user.email != settings.admin_email:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user

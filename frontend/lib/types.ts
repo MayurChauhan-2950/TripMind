@@ -176,3 +176,34 @@ export interface ProfileUpdateRequest {
   home_city?: string | null;
   bio?: string | null;
 }
+
+export interface BudgetRateOut {
+  tier: string;
+  hotel_per_day: number;
+  food_per_day: number;
+  transport_per_day: number;
+  activities_per_day: number;
+}
+
+export interface BudgetRateWrite {
+  hotel_per_day: number;
+  food_per_day: number;
+  transport_per_day: number;
+  activities_per_day: number;
+}
+
+export interface DestinationWrite {
+  name: string;
+  state: string;
+  category: string;
+  budget_level: BudgetLevel;
+  best_season: string;
+  family_friendly: boolean;
+  adventure_score: number;
+  food_score: number;
+  shopping_score: number;
+  nature_score: number;
+  historical_score: number;
+  description: string;
+  image_url: string;
+}

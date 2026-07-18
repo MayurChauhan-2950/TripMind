@@ -4,12 +4,17 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import BudgetRate
 from rate_limit import limiter
-from schemas.budget import BudgetBreakdownOut, BudgetCalculateRequest
+from schemas.budget import BudgetBreakdownOut, BudgetCalculateRequest, BudgetRateOut
 from services.budget_calc import calculate_budget
 from services.gemini_client import GeminiRequestError, GeminiUnavailableError, generate_json
 from services.prompts import build_budget_tip_prompt
 
 router = APIRouter(prefix="/budget", tags=["budget"])
+
+
+@router.get("/rates", response_model=list[BudgetRateOut])
+def list_rates(db: Session = Depends(get_db)):
+    return db.query(BudgetRate).all()
 
 
 @router.post("/calculate", response_model=BudgetBreakdownOut)
