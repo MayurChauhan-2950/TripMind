@@ -23,10 +23,29 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
+const SITE_TITLE = "TripMind — An AI Travel Discovery Platform";
+const SITE_DESCRIPTION =
+  "Discover destinations with a recommendation engine, plan trips with AI-generated itineraries, and estimate budgets with a custom calculator.";
+
 export const metadata: Metadata = {
-  title: "TripMind — An AI Travel Discovery Platform",
-  description:
-    "Discover destinations with a recommendation engine, plan trips with AI-generated itineraries, and estimate budgets with a custom calculator.",
+  title: {
+    default: SITE_TITLE,
+    template: "%s | TripMind",
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    siteName: "TripMind",
+    type: "website",
+    images: ["/images/hero-taj-mahal.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/images/hero-taj-mahal.jpg"],
+  },
 };
 
 export default function RootLayout({
