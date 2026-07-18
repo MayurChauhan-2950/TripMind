@@ -89,10 +89,17 @@ export interface TripListItem {
   days: number;
   traveler_name: string | null;
   created_at: string;
+  user_id: number | null;
 }
 
 export interface TripOut extends TripListItem {
   itinerary: ItineraryDay[];
+}
+
+export interface CollaboratorOut {
+  user_id: number;
+  email: string;
+  username: string;
 }
 
 export interface CompareRequest {

@@ -3,7 +3,9 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Tag from "@/components/ui/Tag";
 import ItineraryTimeline from "@/components/planner/ItineraryTimeline";
+import CollaboratorsPanel from "@/components/trips/CollaboratorsPanel";
 import { buildIcsContent, downloadIcsFile } from "@/lib/ics";
+import { useAuth } from "@/lib/auth/context";
 import type { TripOut } from "@/lib/types";
 
 function todayIsoDate(): string {
@@ -11,7 +13,9 @@ function todayIsoDate(): string {
 }
 
 export default function TripDetail({ trip }: { trip: TripOut }) {
+  const { user } = useAuth();
   const [startDate, setStartDate] = useState(todayIsoDate());
+  const isOwner = trip.user_id !== null && user !== null && trip.user_id === user.id;
 
   function handleExport() {
     const content = buildIcsContent(trip, new Date(`${startDate}T00:00:00`));
@@ -41,6 +45,12 @@ export default function TripDetail({ trip }: { trip: TripOut }) {
           Export to calendar (.ics)
         </Button>
       </div>
+
+      {isOwner && (
+        <div className="max-w-md">
+          <CollaboratorsPanel tripId={trip.id} />
+        </div>
+      )}
 
       <div className="mt-10 max-w-2xl">
         <ItineraryTimeline itinerary={{ destination: trip.destination, days: trip.itinerary }} />
