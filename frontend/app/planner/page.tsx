@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
+import AILoadingState from "@/components/ui/AILoadingState";
+import ErrorState from "@/components/ui/ErrorState";
 import ItineraryForm from "@/components/planner/ItineraryForm";
 import ItineraryTimeline from "@/components/planner/ItineraryTimeline";
 import SaveTripPanel from "@/components/planner/SaveTripPanel";
@@ -103,28 +105,10 @@ function PlannerContent() {
           )}
         </div>
 
-        {/* Error with clear context */}
-        {error && (
-          <div className="mt-6 rounded-card border border-rust/40 bg-rust/5 p-4">
-            <p className="font-body text-label uppercase tracking-[0.04em] text-rust">
-              Error
-            </p>
-            <p className="mt-1 font-body text-body-md text-navy">{error}</p>
-          </div>
-        )}
+        {error && <ErrorState message={error} />}
 
-        {/* AI loading state */}
         {loading && (
-          <div className="mt-8 flex flex-col items-center gap-4 py-8">
-            <div className="flex items-center gap-3">
-              <div className="size-2 animate-bounce rounded-full bg-gold [animation-delay:0ms]" />
-              <div className="size-2 animate-bounce rounded-full bg-gold [animation-delay:150ms]" />
-              <div className="size-2 animate-bounce rounded-full bg-gold [animation-delay:300ms]" />
-            </div>
-            <p className="font-body text-body-sm text-slate">
-              Gemini is drafting your itinerary — this usually takes 5–15 seconds…
-            </p>
-          </div>
+          <AILoadingState message="Gemini is drafting your itinerary — this usually takes 5–15 seconds…" />
         )}
 
         {itinerary && lastRequest && (
