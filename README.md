@@ -1,5 +1,7 @@
 # TripMind — An AI Travel Discovery Platform
 
+[![CI](https://github.com/MayurChauhan-2950/TripMind/actions/workflows/ci.yml/badge.svg)](https://github.com/MayurChauhan-2950/TripMind/actions/workflows/ci.yml)
+
 A tourism web app for discovering destinations, planning trips, estimating budgets, and getting
 AI-powered recommendations. Combines custom backend logic (recommendation scoring, budget
 calculation, comparisons) with Gemini-generated content (itineraries, hidden gems, packing lists,
