@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import BudgetRate
+from rate_limit import limiter
 from schemas.budget import BudgetBreakdownOut, BudgetCalculateRequest
 from services.budget_calc import calculate_budget
 from services.gemini_client import GeminiRequestError, GeminiUnavailableError, generate_json
@@ -12,7 +13,8 @@ router = APIRouter(prefix="/budget", tags=["budget"])
 
 
 @router.post("/calculate", response_model=BudgetBreakdownOut)
-def calculate(payload: BudgetCalculateRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def calculate(request: Request, payload: BudgetCalculateRequest, db: Session = Depends(get_db)):
     rate = db.query(BudgetRate).filter(BudgetRate.tier == payload.budget_tier).first()
     if rate is None:
         raise HTTPException(status_code=404, detail=f"No rates configured for tier '{payload.budget_tier}'")

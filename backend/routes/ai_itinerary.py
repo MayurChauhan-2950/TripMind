@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
 
 from dependencies import get_current_user_optional, user_hobbies
 from models import User
+from rate_limit import limiter
 from schemas.itinerary import ItineraryDay, ItineraryOut, ItineraryRequest
 from services.gemini_client import GeminiRequestError, GeminiUnavailableError, generate_json
 from services.prompts import build_itinerary_prompt
@@ -11,7 +12,9 @@ router = APIRouter(prefix="/ai", tags=["ai-itinerary"])
 
 
 @router.post("/itinerary", response_model=ItineraryOut)
+@limiter.limit("10/minute")
 def generate_itinerary(
+    request: Request,
     payload: ItineraryRequest,
     current_user: User | None = Depends(get_current_user_optional),
 ):
