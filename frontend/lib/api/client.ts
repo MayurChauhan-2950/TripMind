@@ -1,6 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 export const AUTH_TOKEN_KEY = "tripmind_token";
+export const REFRESH_TOKEN_KEY = "tripmind_refresh_token";
 
 export class ApiError extends Error {
   status: number;
@@ -17,10 +18,38 @@ function getToken(): string | null {
   return window.localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
-export async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = getToken();
+function getRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+}
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+function clearTokens() {
+  window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+async function tryRefreshAccessToken(): Promise<string | null> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return null;
+
+  const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+
+  if (!response.ok) {
+    clearTokens();
+    return null;
+  }
+
+  const data = await response.json();
+  window.localStorage.setItem(AUTH_TOKEN_KEY, data.access_token);
+  return data.access_token as string;
+}
+
+function doFetch(path: string, token: string | null, options?: RequestInit) {
+  return fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -28,6 +57,19 @@ export async function fetchJson<T>(path: string, options?: RequestInit): Promise
       ...options?.headers,
     },
   });
+}
+
+export async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
+  let response = await doFetch(path, getToken(), options);
+
+  // Access tokens are short-lived (15 min) — on a 401, try one silent
+  // refresh before giving up, so a logged-in user isn't bounced mid-session.
+  if (response.status === 401 && getToken() && path !== "/api/auth/refresh") {
+    const newToken = await tryRefreshAccessToken();
+    if (newToken) {
+      response = await doFetch(path, newToken, options);
+    }
+  }
 
   if (!response.ok) {
     let detail = response.statusText;
