@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from config import settings
-from database import Base, SessionLocal, engine
+from database import SessionLocal
 from rate_limit import limiter
 from routes import ai_generic, ai_itinerary, auth, budget, compare, destinations, trips
 from seed import run_seed
@@ -15,7 +15,7 @@ from seed import run_seed
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    # Schema is managed by Alembic migrations — run `alembic upgrade head` before starting.
     db = SessionLocal()
     try:
         run_seed(db)

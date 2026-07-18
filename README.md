@@ -27,12 +27,19 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 # add your GEMINI_API_KEY to backend/.env (see .env.example)
+alembic upgrade head
 uvicorn main:app --reload --port 8000
 ```
 
-The database and seed data (14 destinations, 3 budget tiers) are created automatically on
-startup — no manual migration or seed step needed. The app boots and serves all non-AI routes
-even without a `GEMINI_API_KEY`; only the AI routes require it.
+Schema is managed by Alembic migrations (`backend/alembic/versions/`) — run `alembic upgrade
+head` once before the first start, and again after pulling any change that adds a migration. Seed
+data (14 destinations, 3 budget tiers) still inserts automatically and idempotently on startup, no
+manual seed step needed. The app boots and serves all non-AI routes even without a
+`GEMINI_API_KEY`; only the AI routes require it.
+
+If you have an existing `tripmind.db` from before migrations were introduced, delete it once and
+run `alembic upgrade head` to start clean — `alembic upgrade head` creates tables from scratch and
+will conflict with tables that already exist from the old auto-create behavior.
 
 ## Running the frontend
 
