@@ -35,7 +35,8 @@ def compare_destinations(
         prompt = build_compare_prompt(
             dest_a.name, dest_b.name, table, hobbies=user_hobbies(current_user)
         )
-        result = generate_json(prompt)
+        fallback_key = "compare:" + ":".join(sorted([dest_a.name, dest_b.name]))
+        result = generate_json(prompt, db, "compare", fallback_key)
         ai_summary = result.get("summary") if isinstance(result, dict) else None
     except (GeminiUnavailableError, GeminiRequestError):
         ai_summary = None

@@ -29,7 +29,7 @@ def calculate(request: Request, payload: BudgetCalculateRequest, db: Session = D
     cost_saving_tip = None
     try:
         prompt = build_budget_tip_prompt(payload.destination, breakdown)
-        result = generate_json(prompt)
+        result = generate_json(prompt, db, "budget-tip", f"budget-tip:{payload.destination}")
         cost_saving_tip = result.get("tip") if isinstance(result, dict) else None
     except (GeminiUnavailableError, GeminiRequestError):
         cost_saving_tip = None

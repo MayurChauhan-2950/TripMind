@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
+from database import get_db
 from dependencies import get_current_user_optional, user_hobbies
 from models import User
 from rate_limit import limiter
@@ -17,6 +19,7 @@ def generate_itinerary(
     request: Request,
     payload: ItineraryRequest,
     current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
 ):
     prompt = build_itinerary_prompt(
         payload.destination,
@@ -27,7 +30,7 @@ def generate_itinerary(
     )
 
     try:
-        raw_days = generate_json(prompt)
+        raw_days = generate_json(prompt, db, "itinerary", f"itinerary:{payload.destination}")
     except GeminiUnavailableError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except GeminiRequestError as exc:

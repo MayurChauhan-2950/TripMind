@@ -1,13 +1,11 @@
-import hashlib
 import json
 import re
 
 from google import genai
+from sqlalchemy.orm import Session
 
 from config import settings
-from services.cache import get_or_set
-
-_CACHE_TTL_SECONDS = 3600
+from services.ai_cache import get_exact, get_fallback, make_cache_key, store
 
 
 class GeminiUnavailableError(Exception):
@@ -101,12 +99,36 @@ def _call_gemini(prompt: str, temperature: float) -> dict | list:
         ) from exc
 
 
-def generate_json(prompt: str, *, temperature: float = 0.7) -> dict | list:
+def generate_json(
+    prompt: str,
+    db: Session,
+    feature: str,
+    fallback_key: str,
+    *,
+    temperature: float = 0.7,
+) -> dict | list:
+    """Serves an exact-match response from storage without a live call, and falls
+    back to the most recent stored response for (feature, fallback_key) if the
+    live call is unavailable or fails, instead of erroring out."""
+    cache_key = make_cache_key(settings.gemini_model, temperature, prompt)
+
+    cached = get_exact(db, cache_key)
+    if cached is not None:
+        return json.loads(cached)
+
     if not settings.gemini_api_key:
+        fallback = get_fallback(db, feature, fallback_key)
+        if fallback is not None:
+            return json.loads(fallback)
         raise GeminiUnavailableError("GEMINI_API_KEY is not configured")
 
-    cache_key = hashlib.sha256(
-        f"{settings.gemini_model}:{temperature}:{prompt}".encode("utf-8")
-    ).hexdigest()
+    try:
+        result = _call_gemini(prompt, temperature)
+    except GeminiRequestError:
+        fallback = get_fallback(db, feature, fallback_key)
+        if fallback is not None:
+            return json.loads(fallback)
+        raise
 
-    return get_or_set(cache_key, _CACHE_TTL_SECONDS, lambda: _call_gemini(prompt, temperature))
+    store(db, feature, cache_key, fallback_key, json.dumps(result))
+    return result
