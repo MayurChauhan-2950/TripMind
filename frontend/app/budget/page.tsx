@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/layout/PageHeader";
+import AILoadingState from "@/components/ui/AILoadingState";
+import ErrorState from "@/components/ui/ErrorState";
 import BudgetForm from "@/components/budget/BudgetForm";
 import BudgetBreakdownTable from "@/components/budget/BudgetBreakdownTable";
 import { calculateBudget } from "@/lib/api/budget";
@@ -51,7 +53,11 @@ export default function BudgetPage() {
           )}
         </div>
 
-        {error && <p className="mt-6 font-body text-body-md text-rust">{error}</p>}
+        {error && <ErrorState message={error} />}
+
+        {loading && (
+          <AILoadingState message="Crunching the numbers and asking Gemini for a cost-saving tip…" />
+        )}
 
         {breakdown && (
           <div className="mt-12 max-w-xl">

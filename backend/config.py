@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./tripmind.db"
     cors_origins: str = "http://localhost:3000"
     jwt_secret: str = "dev-secret-change-me"
+    admin_email: str | None = None
 
     @property
     def cors_origin_list(self) -> list[str]:

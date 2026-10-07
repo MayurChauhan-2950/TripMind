@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
+import ErrorState from "@/components/ui/ErrorState";
 import TripCard from "@/components/trips/TripCard";
 import RevealOnScroll from "@/components/motifs/RevealOnScroll";
 import { deleteTrip, listTrips } from "@/lib/api/trips";
@@ -48,7 +49,7 @@ export default function TripsPage() {
       />
 
       <div className="mx-auto max-w-[1200px] px-6 py-12 lg:px-16">
-        {error && <p className="mb-6 font-body text-body-md text-rust">{error}</p>}
+        {error && <ErrorState message={error} />}
 
         {loading ? (
           <p className="font-body text-body-md text-slate">Loading…</p>

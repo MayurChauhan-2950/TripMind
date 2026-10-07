@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Gem } from "lucide-react";
+import AILoadingState from "@/components/ui/AILoadingState";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import ErrorState from "@/components/ui/ErrorState";
 import Select from "@/components/ui/Select";
 import { getHiddenGems } from "@/lib/api/ai";
 import { ApiError } from "@/lib/api/client";
@@ -53,7 +55,9 @@ export default function HiddenGemsPanel({ destinations }: { destinations: Destin
         </Button>
       </form>
 
-      {error && <p className="mt-4 font-body text-body-sm text-rust">{error}</p>}
+      {error && <ErrorState message={error} />}
+
+      {loading && <AILoadingState message="Gemini is digging up lesser-known spots…" />}
 
       {result && (
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">

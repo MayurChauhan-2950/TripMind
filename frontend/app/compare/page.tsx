@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/layout/PageHeader";
+import AILoadingState from "@/components/ui/AILoadingState";
+import ErrorState from "@/components/ui/ErrorState";
 import CompareForm from "@/components/compare/CompareForm";
 import CompareTable from "@/components/compare/CompareTable";
 import CompareAISummary from "@/components/compare/CompareAISummary";
@@ -52,7 +54,11 @@ export default function ComparePage() {
           )}
         </div>
 
-        {error && <p className="mt-6 font-body text-body-md text-rust">{error}</p>}
+        {error && <ErrorState message={error} />}
+
+        {loading && (
+          <AILoadingState message="Building the comparison table and asking Gemini for a take…" />
+        )}
 
         {result && (
           <div className="mt-12">

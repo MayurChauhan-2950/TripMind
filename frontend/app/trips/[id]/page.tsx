@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import ErrorState from "@/components/ui/ErrorState";
 import TripDetail from "@/components/trips/TripDetail";
 import { getTrip } from "@/lib/api/trips";
 import { ApiError } from "@/lib/api/client";
@@ -20,7 +21,7 @@ export default function TripDetailPage() {
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-12 lg:px-16">
-      {error && <p className="font-body text-body-md text-rust">{error}</p>}
+      {error && <ErrorState message={error} />}
       {!trip && !error && <p className="font-body text-body-md text-slate">Loading…</p>}
       {trip && <TripDetail trip={trip} />}
     </div>

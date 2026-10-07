@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PageHeader from "@/components/layout/PageHeader";
+import ErrorState from "@/components/ui/ErrorState";
 import DestinationFilterForm from "@/components/destinations/DestinationFilterForm";
 import RecommendResultsList from "@/components/destinations/RecommendResultsList";
 import { recommendDestinations } from "@/lib/api/destinations";
@@ -41,7 +42,7 @@ export default function ExplorePage() {
           <DestinationFilterForm onSubmit={handleSubmit} loading={loading} />
         </div>
 
-        {error && <p className="mt-6 font-body text-body-md text-rust">{error}</p>}
+        {error && <ErrorState message={error} />}
 
         {hasSearched && !error && (
           <div className="mt-12">

@@ -1,8 +1,27 @@
+import { useState } from "react";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import Tag from "@/components/ui/Tag";
 import ItineraryTimeline from "@/components/planner/ItineraryTimeline";
+import CollaboratorsPanel from "@/components/trips/CollaboratorsPanel";
+import { buildIcsContent, downloadIcsFile } from "@/lib/ics";
+import { useAuth } from "@/lib/auth/context";
 import type { TripOut } from "@/lib/types";
 
+function todayIsoDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function TripDetail({ trip }: { trip: TripOut }) {
+  const { user } = useAuth();
+  const [startDate, setStartDate] = useState(todayIsoDate());
+  const isOwner = trip.user_id !== null && user !== null && trip.user_id === user.id;
+
+  function handleExport() {
+    const content = buildIcsContent(trip, new Date(`${startDate}T00:00:00`));
+    downloadIcsFile(`${trip.trip_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.ics`, content);
+  }
+
   return (
     <div>
       <p className="font-body text-label uppercase tracking-[0.04em] text-gold">
@@ -14,6 +33,24 @@ export default function TripDetail({ trip }: { trip: TripOut }) {
         <Tag dot="rust">{trip.budget_tier} budget</Tag>
         <Tag dot="none">{trip.days} days</Tag>
       </div>
+
+      <div className="mt-6 flex flex-wrap items-end gap-3">
+        <div>
+          <label className="mb-1 block font-body text-body-sm text-slate">
+            Trip start date (for calendar export)
+          </label>
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        </div>
+        <Button type="button" variant="secondary" onClick={handleExport}>
+          Export to calendar (.ics)
+        </Button>
+      </div>
+
+      {isOwner && (
+        <div className="max-w-md">
+          <CollaboratorsPanel tripId={trip.id} />
+        </div>
+      )}
 
       <div className="mt-10 max-w-2xl">
         <ItineraryTimeline itinerary={{ destination: trip.destination, days: trip.itinerary }} />

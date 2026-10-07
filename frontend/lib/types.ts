@@ -89,10 +89,17 @@ export interface TripListItem {
   days: number;
   traveler_name: string | null;
   created_at: string;
+  user_id: number | null;
 }
 
 export interface TripOut extends TripListItem {
   itinerary: ItineraryDay[];
+}
+
+export interface CollaboratorOut {
+  user_id: number;
+  email: string;
+  username: string;
 }
 
 export interface CompareRequest {
@@ -142,7 +149,21 @@ export interface LoginRequest {
 
 export interface TokenOut {
   access_token: string;
+  refresh_token: string;
   token_type: string;
+}
+
+export interface AccessTokenOut {
+  access_token: string;
+  token_type: string;
+}
+
+export interface RefreshRequest {
+  refresh_token: string;
+}
+
+export interface LogoutRequest {
+  refresh_token: string;
 }
 
 export interface UserOut {
@@ -161,4 +182,35 @@ export interface ProfileUpdateRequest {
   hobbies: string[];
   home_city?: string | null;
   bio?: string | null;
+}
+
+export interface BudgetRateOut {
+  tier: string;
+  hotel_per_day: number;
+  food_per_day: number;
+  transport_per_day: number;
+  activities_per_day: number;
+}
+
+export interface BudgetRateWrite {
+  hotel_per_day: number;
+  food_per_day: number;
+  transport_per_day: number;
+  activities_per_day: number;
+}
+
+export interface DestinationWrite {
+  name: string;
+  state: string;
+  category: string;
+  budget_level: BudgetLevel;
+  best_season: string;
+  family_friendly: boolean;
+  adventure_score: number;
+  food_score: number;
+  shopping_score: number;
+  nature_score: number;
+  historical_score: number;
+  description: string;
+  image_url: string;
 }

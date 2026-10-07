@@ -2,8 +2,10 @@ import json
 import re
 
 from google import genai
+from sqlalchemy.orm import Session
 
 from config import settings
+from services.ai_cache import get_exact, get_fallback, make_cache_key, store
 
 
 class GeminiUnavailableError(Exception):
@@ -61,10 +63,7 @@ def _extract_json_fragment(text: str) -> str:
     return text
 
 
-def generate_json(prompt: str, *, temperature: float = 0.7) -> dict | list:
-    if not settings.gemini_api_key:
-        raise GeminiUnavailableError("GEMINI_API_KEY is not configured")
-
+def _call_gemini(prompt: str, temperature: float) -> dict | list:
     client = genai.Client(api_key=settings.gemini_api_key)
 
     try:
@@ -98,3 +97,38 @@ def generate_json(prompt: str, *, temperature: float = 0.7) -> dict | list:
             f"Try simplifying the request (fewer days or different options). "
             f"Details: {exc}"
         ) from exc
+
+
+def generate_json(
+    prompt: str,
+    db: Session,
+    feature: str,
+    fallback_key: str,
+    *,
+    temperature: float = 0.7,
+) -> dict | list:
+    """Serves an exact-match response from storage without a live call, and falls
+    back to the most recent stored response for (feature, fallback_key) if the
+    live call is unavailable or fails, instead of erroring out."""
+    cache_key = make_cache_key(settings.gemini_model, temperature, prompt)
+
+    cached = get_exact(db, cache_key)
+    if cached is not None:
+        return json.loads(cached)
+
+    if not settings.gemini_api_key:
+        fallback = get_fallback(db, feature, fallback_key)
+        if fallback is not None:
+            return json.loads(fallback)
+        raise GeminiUnavailableError("GEMINI_API_KEY is not configured")
+
+    try:
+        result = _call_gemini(prompt, temperature)
+    except GeminiRequestError:
+        fallback = get_fallback(db, feature, fallback_key)
+        if fallback is not None:
+            return json.loads(fallback)
+        raise
+
+    store(db, feature, cache_key, fallback_key, json.dumps(result))
+    return result

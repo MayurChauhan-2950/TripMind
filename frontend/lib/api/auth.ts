@@ -1,6 +1,7 @@
 import { fetchJson } from "@/lib/api/client";
 import type {
   LoginRequest,
+  LogoutRequest,
   ProfileUpdateRequest,
   SignupRequest,
   TokenOut,
@@ -16,6 +17,13 @@ export function signup(payload: SignupRequest): Promise<TokenOut> {
 
 export function login(payload: LoginRequest): Promise<TokenOut> {
   return fetchJson<TokenOut>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function logoutRequest(payload: LogoutRequest): Promise<void> {
+  return fetchJson<void>("/api/auth/logout", {
     method: "POST",
     body: JSON.stringify(payload),
   });

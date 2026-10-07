@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import AILoadingState from "@/components/ui/AILoadingState";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import ErrorState from "@/components/ui/ErrorState";
 import Select from "@/components/ui/Select";
 import { getPackingList } from "@/lib/api/ai";
 import { ApiError } from "@/lib/api/client";
@@ -97,7 +99,9 @@ export default function PackingListPanel({ destinations }: { destinations: Desti
         </Button>
       </form>
 
-      {error && <p className="mt-4 font-body text-body-sm text-rust">{error}</p>}
+      {error && <ErrorState message={error} />}
+
+      {loading && <AILoadingState message="Gemini is building your packing checklist…" />}
 
       {result && (
         <Card className="mt-8 p-6 sm:p-8">

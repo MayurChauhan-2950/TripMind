@@ -3,11 +3,41 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from dependencies import get_current_user
-from models import User
-from schemas.auth import LoginRequest, ProfileUpdateRequest, SignupRequest, TokenOut, UserOut
-from services.auth import create_access_token, hash_password, verify_password
+from models import RefreshToken, User
+from schemas.auth import (
+    AccessTokenOut,
+    LoginRequest,
+    LogoutRequest,
+    ProfileUpdateRequest,
+    RefreshRequest,
+    SignupRequest,
+    TokenOut,
+    UserOut,
+)
+from services.auth import (
+    create_access_token,
+    generate_refresh_token,
+    hash_password,
+    hash_refresh_token,
+    refresh_token_expiry,
+    utcnow_naive,
+    verify_password,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def _issue_tokens(user_id: int, db: Session) -> TokenOut:
+    raw_refresh_token = generate_refresh_token()
+    db.add(
+        RefreshToken(
+            user_id=user_id,
+            token_hash=hash_refresh_token(raw_refresh_token),
+            expires_at=refresh_token_expiry(),
+        )
+    )
+    db.commit()
+    return TokenOut(access_token=create_access_token(user_id), refresh_token=raw_refresh_token)
 
 
 def _to_user_out(user: User) -> UserOut:
@@ -44,7 +74,7 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    return TokenOut(access_token=create_access_token(user.id))
+    return _issue_tokens(user.id, db)
 
 
 @router.post("/login", response_model=TokenOut)
@@ -53,7 +83,27 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    return TokenOut(access_token=create_access_token(user.id))
+    return _issue_tokens(user.id, db)
+
+
+@router.post("/refresh", response_model=AccessTokenOut)
+def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
+    token_hash = hash_refresh_token(payload.refresh_token)
+    stored = db.query(RefreshToken).filter(RefreshToken.token_hash == token_hash).first()
+
+    if stored is None or stored.revoked or stored.expires_at < utcnow_naive():
+        raise HTTPException(status_code=401, detail="Refresh token is invalid or expired")
+
+    return AccessTokenOut(access_token=create_access_token(stored.user_id))
+
+
+@router.post("/logout", status_code=204)
+def logout(payload: LogoutRequest, db: Session = Depends(get_db)):
+    token_hash = hash_refresh_token(payload.refresh_token)
+    stored = db.query(RefreshToken).filter(RefreshToken.token_hash == token_hash).first()
+    if stored is not None:
+        stored.revoked = True
+        db.commit()
 
 
 @router.get("/me", response_model=UserOut)
