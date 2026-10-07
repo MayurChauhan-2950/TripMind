@@ -23,11 +23,12 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-const SITE_TITLE = "TripMind — An AI Travel Discovery Platform";
+const SITE_TITLE = "TripMind — AI Travel Discovery Platform";
 const SITE_DESCRIPTION =
-  "Discover destinations with a recommendation engine, plan trips with AI-generated itineraries, and estimate budgets with a custom calculator.";
+  "A hybrid recommendation engine — custom scoring logic combined with Gemini-generated itineraries, hidden gems, and packing lists.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://trip-mind-kohl.vercel.app"),
   title: {
     default: SITE_TITLE,
     template: "%s | TripMind",
@@ -38,13 +39,11 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     siteName: "TripMind",
     type: "website",
-    images: ["/images/hero-taj-mahal.jpg"],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: ["/images/hero-taj-mahal.jpg"],
   },
 };
 
